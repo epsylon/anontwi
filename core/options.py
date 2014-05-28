@@ -5,7 +5,7 @@ $Id$
 
 This file is part of the anontwi project, http://twitwi.sourceforge.net.
 
-Copyright (c) 2012/2013 psy <root@lordepsylon.net> - <epsylon@riseup.net>
+Copyright (c) 2012/2013/2014 psy <root@lordepsylon.net> - <epsylon@riseup.net>
 
 anontwi is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free
@@ -27,7 +27,7 @@ class AnonTwiOptions(optparse.OptionParser):
         optparse.OptionParser.__init__(self, 
                            #description='FIGHT CENSORSHIP!! being more safe on social networking sites...',
                            prog='anontwi.py',
-                           version='\nAnonTwi [1.1b] - 2013 - http://anontwi.sf.net -> by psy\n', 
+                           version='\nAnonTwi [1.1b] - 2012/2013/2014 - http://anontwi.sf.net\n', 
                                        usage= '\n\n Info: check README file (examples and contact included).\n\n Syntax: ./anontwi [OPTIONS] [--tokens] [--gtk | --web | --irc=] [Controller] [Miscellania] [Encryption]')
 
         #self.add_option("-v", "--verbose", action="store_true", dest="verbose", help="active verbose mode output results")
