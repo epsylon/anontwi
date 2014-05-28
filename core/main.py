@@ -5,7 +5,7 @@ $Id$
 
 This file is part of the anontwi project, http://anontwi.sourceforge.net.
 
-Copyright (c) 2012/2015 psy <root@lordepsylon.net> - <epsylon@riseup.net>
+Copyright (c) 2012/2013 psy <root@lordepsylon.net> - <epsylon@riseup.net>
 
 anontwi is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free
@@ -28,19 +28,20 @@ import core.oauth2 as oauth
 import re, urllib2, socket
 import core.socks
 import HTMLParser
+import traceback
 from urllib2 import URLError
 from core.encrypt import Cipher, generate_key
 from core.twitter import TwitterError
 from core.options import AnonTwiOptions
 from core.shorter import ShortURLReservations
-#from core.webserver import AnonTwiWebserver
+from core.webserver import AnonTwiWebserver
 try:
     from urlparse import parse_qsl
 except:
     from cgi import parse_qsl
 
 # set to emit debug messages about errors (0 = off).
-DEBUG = 0
+DEBUG = 1
 
 class anontwi(object):
     """
@@ -65,6 +66,7 @@ class anontwi(object):
  
         self.save = None
         self.savefavs = None
+        self.savefriends = None
 
         # setting random user-agent and blank referer for connections
         self.agents = []
@@ -224,71 +226,86 @@ class anontwi(object):
             return func(*args)
         except Exception as e:
             if options.timeline or options.timelinedm or options.save:
-                print("[Error] - Something wrong or this user doesn't exists!!. Aborting..."), "\n"
-                if options.gtk:
+                print("\n[Error] - Something wrong or this user doesn't exists!!. Aborting..."), "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            if options.savef:
+                print("\n[Error] - Something wrong!. Probably you haven't enought permissions to extract friendships. Aborting..."), "\n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.timelinef:
-                print("[Error] - Something wrong fetching friend's timeline. Aborting..."), "\n"
-                if options.gtk:
+                print("\n[Error] - Something wrong fetching friend's timeline. Aborting..."), "\n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.tweet:
-                print "\n[Error] - Something wrong sending your tweet. ",e,"\n\nRemember that text must be less than or equal to 140 characters.\nConsider using --wave to split it on different blocks if has more than 1 wave. Aborting... \n"
-                if options.gtk:
+                print "\n[Warning] - Something wrong sending message:\n\n",e,"\n\nRemember that text must be less than or equal to 140 characters.\nConsider using --wave to split it on different blocks if has more than 1 wave. Aborting... \n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.rmtweet:
-                print("\n[Error] - Something wrong removing tweet. Check that you are using a correct ID. Aborting..."), "\n"
-                if options.gtk:
+                print("\n[Error] - Something wrong removing message. Check that you are using a correct ID. Aborting..."), "\n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.rmdm:
                 print("\n[Error] - Something wrong removing direct message. Check that you are using a correct ID. Aborting..."), "\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.retweet:
                 print("\n[Error] - Something wrong with tweet's ID!!. Aborting..."), "\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.friend:
                 print"\n[Error] - Something wrong creating your friendship. Aborting...", "\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
-            #if options.massfriend:
-            #    print"\nSomething wrong with massive friendships. Aborting...", "\n"
-            #    sys.exit(2)
+            if options.massfriend:
+                print "\n[Error] - Something wrong creating your list of friendships. Aborting...", "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
             if options.dfriend:
                 print "\n[Error] - Something wrong destroying your friendship. Aborting...", "\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            if options.massdfriend:
+                print "\n[Error] - Something wrong destroying your list of friendships. Aborting...", "\n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.mentions:
                 print("\n[Error] - Something wrong fetching your mentions. Aborting..."), "\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.block:
-                print("\n[Error] - Something wrong blocking user "), options.block, e, (" Aborting...\n")
-                if options.gtk:
+                print("\n[Error] - Something wrong blocking user"), options.block,"\n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             if options.unblock:
-                print("\n[Error] - Something wrong unblocking user "), options.unblock,e, (" Aborting...\n")
-                if options.gtk:
+                print("\n[Error] - Something wrong unblocking user"), options.unblock,"\n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -312,6 +329,18 @@ class anontwi(object):
                 print('='*75)
                 print("Starting to send your DM (direct message)... :)")
                 print('='*75)
+            elif options.mdm:
+                print('='*75)
+                print(str(p.version))
+                print('='*75)
+                print("Starting to send a massively DM (direct message) to friends... :)")
+                print('='*75)
+            elif options.ldm:
+                print('='*75)
+                print(str(p.version))
+                print('='*95)
+                print("Starting to send a massively DM (direct message) to a list of friends extracted from file... :)")
+                print('='*95)
             elif options.wave:
                 print('='*75)
                 print(str(p.version))
@@ -345,6 +374,16 @@ class anontwi(object):
             print "Creating friendship:", options.friend
             print('='*75)
 
+        if options.massfriend and not options.tweet:
+            print('='*75)
+            print(str(p.version))
+            print('='*75)
+            print "Creating friendships from a list of users, extracted from a file :)"
+            print('='*75)
+        elif options.massfriend:
+            print "Creating friendships from a list of users, extracted from a file :)"
+            print('='*75)
+
         #if options.dfriend and not (options.tweet or options.image):
         if options.dfriend and not options.tweet:
             print('='*75)
@@ -354,6 +393,16 @@ class anontwi(object):
             print('='*75)
         elif options.dfriend:
             print "Destroying friendship:", options.dfriend
+            print('='*75)
+
+        if options.massdfriend and not options.tweet:
+            print('='*75)
+            print(str(p.version))
+            print('='*75)
+            print "Destroying friendships from a list of users, extracted from a file :)"
+            print('='*75)
+        elif options.massdfriend:
+            print "Destroying friendships from a list of users, extracted from a file :)"
             print('='*75)
 
         if options.decaes:
@@ -374,7 +423,7 @@ class anontwi(object):
             print('='*75)
             print(str(p.version))
             print('='*75)
-            print "Unblocking user::", options.unblock, " :)"
+            print "Unblocking user:", options.unblock, " :)"
             print('='*75)
 
         if options.favorite:
@@ -454,14 +503,14 @@ class anontwi(object):
             except IndexError:
                 eprint ("\n[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                 eprint ("\nAborting...\n")
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             except ValueError:
                 eprint ("[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                 eprint ("\nAborting...\n")
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -483,13 +532,14 @@ class anontwi(object):
         eprint ('\n\n')
 
         try:
+            print "GET :"+ self.request_token_url
             resp, content = oauth_client.request(self.request_token_url, 'GET', headers=self.request_headers)
         except:
             if options.rgb:
                 eprint ("\033[1;31mConnection refused!\033[1;m\n\n")
             else:
                 eprint ("Connection refused!\n\n")
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -504,7 +554,7 @@ class anontwi(object):
                 eprint ('Review config.py file to see if your API consumer and token values (secret and key) are correct' + "\n")
             eprint ('If you are using a proxy, check that is working correctly'+ "\n")
             eprint ('\n')
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -565,14 +615,14 @@ class anontwi(object):
             except IndexError:
                 eprint ("\n[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                 eprint ("\nAborting...\n")
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             except ValueError:
                 eprint ("[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                 eprint ("\nAborting...\n")
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -608,7 +658,7 @@ class anontwi(object):
                 eprint ("\033[1;31mConnection refused!\033[1;m\n\n")
             else:
                 eprint ("Connection refused!\n\n")
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -706,23 +756,105 @@ class anontwi(object):
             status = api.PostDirectMessage(dm, message)
         except URLError as u:
             print "[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             try:
                 print "[Error] - ",t, "\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             except Exception:
                 print "Oops! It seems that you've said that\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
+
+    def send_mdm(self, message, mdm):
+        """
+        Send a Direct Message (DM) massively to all your friends, or to a list of friends extracted from a file
+        """
+        # step 1) list friends ids: https://dev.twitter.com/docs/api/1/get/friends/ids
+        # ex: https://api.twitter.com/1/friends/ids.json?cursor=-1&screen_name=anontwinews
+        #
+        # step 2) get users lookup: https://dev.twitter.com/docs/api/1/get/users/lookup
+        # ex: https://api.twitter.com/1/users/lookup.json?screen_name=anontwinews,lord_epsylon&include_entities=true 
+
+        options = self.options
+
+        tokens = self.try_running(self.get_env_tokens, "\nInternal error getting -Tokens- ")
+        api = core.twitter.Api(self.consumer_key, self.consumer_secret, self.access_token_key, self.access_token_secret, proxy=options.proxy, request_headers=self.request_headers)
+
+        # get following friends from a file, print a list in output results and send a direct message to all of them
+        if options.ldm:
+            try:
+                friends = lines = [line.strip() for line in open(options.ldm)]
+		#friends = tuple(open(options.ldm, 'r'))
+                count = len(friends)
+                #print friends
+                if friends == []:
+                    print "You haven't a correct list of friends on that file. Try to put user screen names sepparated line by line.\n"
+                try:
+                    for update in friends:
+                        print update
+                        api.PostDirectMessage(update, message)
+                except TwitterError as t:
+                    print update.name + " is not following you... DM to him/her has been aborted."
+            except URLError as u:
+                print "\n[Error] - ",u.reason.strerror, "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            except TwitterError as t:
+                print "\n[Error] - ",t, "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            except Exception:
+                print "\nOops! Error sending a message to all your friends\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+
+        # get following friends directly from user profile, print a list in output results and send a direct message to all of them
+        elif options.mdm:
+            try:
+                friends = api.GetFriends()
+                count = len(friends)
+                if friends == []:
+                    print "You haven't friends, yet.\n"
+                for update in friends:
+                    try:
+                        print update.name
+                        api.PostDirectMessage(update.screen_name, message)
+                    except TwitterError as t:
+                        print update.name + " is not following you... DM to him/her has been aborted."
+            except URLError as u:
+                print "[Error] - ",u.reason.strerror, "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            except TwitterError as t:
+                try:
+                    print "[Error] - ",t, "\n"
+                    if options.gtk or options.webserver:
+                        return
+                    else:
+                        sys.exit(2)
+                except Exception:
+                    print "\nOops! Error sending a message to all your friends\n"
+                    if options.gtk or options.webserver:
+                        return
+                    else:
+                        sys.exit(2)
 
     def send_tweet(self, message, reply, lat, long):
         """
@@ -737,7 +869,7 @@ class anontwi(object):
             status = api.PostUpdate(status=message, in_reply_to_status_id=reply, latitude=lat, longitude=long)
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -753,16 +885,17 @@ class anontwi(object):
         try:
             for m in message:
                 message = self.unicoding(m)
-            status = api.PostUpdates(status=message, reply=reply, latitude=lat, longitude=long)
+                status = api.PostUpdates(status=message, in_reply_to_status_id=reply, latitude=lat, longitude=long)
+#                status = self.send_tweet(message, reply, lat, long)
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -779,13 +912,13 @@ class anontwi(object):
             status = api.DestroyStatus(options.rmtweet)
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -802,13 +935,13 @@ class anontwi(object):
             status = api.DestroyDirectMessage(options.rmdm)
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -826,13 +959,13 @@ class anontwi(object):
             status = api.PostRetweet(id)
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -874,14 +1007,14 @@ class anontwi(object):
             if int(num) <= 0:
                 print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --ts 'AnonTwi 5')\n" 
                 print "Aborting ....\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
         except ValueError:
             print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --ts 'AnonTwi 3')\n"
             print "Aborting ....\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -889,7 +1022,8 @@ class anontwi(object):
         tokens = self.try_running(self.get_env_tokens, "\nInternal error getting -Tokens- ")
 
         api = core.twitter.Api(self.consumer_key, self.consumer_secret, self.access_token_key, self.access_token_secret, proxy=options.proxy, request_headers=self.request_headers)
-        status = api.GetSearch(search, per_page=num)
+
+        status = api.GetSearch(term=search, per_page=num)
         return status
 
     def search_topics(self):
@@ -926,13 +1060,13 @@ class anontwi(object):
         	return status, count
 	except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)   
@@ -958,14 +1092,14 @@ class anontwi(object):
             if int(num) <= 0:
                 print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --tu '@user 5')\n" 
                 print "Aborting ....\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
         except ValueError:
             print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --tu '@user 5')\n"
             print "Aborting ....\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -977,7 +1111,7 @@ class anontwi(object):
             status = api.GetUserTimeline(user, count=num, include_rts=1)
         except TwitterError as t:
             print "[Error] - ",t,"\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -994,14 +1128,14 @@ class anontwi(object):
                 if int(dm) <= 0:
                     print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --td '5')\n"
                     print "Aborting ....\n"
-                    if options.gtk:
+                    if options.gtk or options.webserver:
                         return
                     else:
                         sys.exit(2)
             except Exception as e:
                 print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --td '3')\n"
                 print "Aborting ....\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1015,7 +1149,7 @@ class anontwi(object):
             status = api.GetDirectMessages()
         except TwitterError as t:
             print "[Error] - ",t,"\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1034,14 +1168,14 @@ class anontwi(object):
             if int(num) <= 0:
                 print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --tf '5')\n"
                 print "Aborting ....\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
         except ValueError:
             print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --tf '3')\n"
             print "Aborting ....\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1051,15 +1185,41 @@ class anontwi(object):
         try:
             status = api.GetFriendsTimeline(count=num, include_rts=1)
         except TwitterError as t:
-            if options.gtk:
+            traceback.print_exc()
+            print "[Error] - ",t,"\n"
+            if options.gtk or options.webserver:
                 return
             else:
                 print "[Error] - ",t,"\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
         return status, num
+
+
+    def friendlist(self):
+        """
+        Get your friends
+        """
+        options = self.options
+        tokens = self.try_running(self.get_env_tokens, "\nInternal error getting -Tokens- ")
+        api = core.twitter.Api(self.consumer_key, self.consumer_secret, self.access_token_key, self.access_token_secret, proxy=options.proxy, request_headers=self.request_headers)           
+        try:
+            status=api.GetFriends()
+        except TwitterError as t:
+            traceback.print_exc()
+            print "[Error] - ",t,"\n"
+            if options.gtk or options.webserver:
+                return
+            else:
+                print "[Error] - ",t,"\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+
+        return status
 
     def show_mentions(self):
         """
@@ -1072,14 +1232,14 @@ class anontwi(object):
                 if int(mention) <= 0:
                     print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --me '5')\n"
                     print "Aborting ....\n"
-                    if options.gtk:
+                    if options.gtk or options.webserver:
                         return
                     else:
                         sys.exit(2)
             except Exception as e:
                 print "[Error] - Number of ocurrences must be an integer greater than zero. (ex: --me '3')\n"
                 print "Aborting ....\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1093,7 +1253,7 @@ class anontwi(object):
             status = api.GetMentions()
         except TwitterError as t:
             print "[Error] - ",t,"\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1107,33 +1267,76 @@ class anontwi(object):
         tokens = self.try_running(self.get_env_tokens, "\nInternal error getting -Tokens- ")
         api = core.twitter.Api(self.consumer_key, self.consumer_secret, self.access_token_key, self.access_token_secret, proxy=options.proxy, request_headers=self.request_headers)
 
-        #if options.massfriend:
-        #    try:
-        #        f = open(options.massfriend)
-        #        friends = f.readlines()
-        #        friends = [ line.replace('\n','') for line in friends ]
-        #        f.close()
-        #    except:
-        #        import os.path
-        #        if os.path.exists(options.massfriend) == True:
-        #            self.report('\nThere is some errors opening the file: ', options.massfriend, "\n")
-        #        else:
-        #            self.report('\nThe file: ', options.massfriend, " doesn't exist!!\n")
-
-        #    status = api.CreateFriendship(options.massfriend)
-        #else:
-        status = api.CreateFriendship(options.friend)
+        if options.friend:
+            status = api.CreateFriendship(options.friend)
+        elif options.massfriend:
+            try:
+                friends = lines = [line.strip() for line in open(options.massfriend)]
+                count = len(friends)
+                if friends == []:
+                    print "You haven't a correct list of friends on the file. Try to put user screen names sepparated line by line.\n"
+                for update in friends:
+                    print update
+                    status = api.CreateFriendship(update)
+            except URLError as u:
+                print "\n[Error] - ",u.reason.strerror, "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            except TwitterError as t:
+                try:
+                    print "\n[Error] - ",t, "\n"
+                    if options.gtk or options.webserver:
+                        return
+                    else:
+                        sys.exit(2)
+                except Exception:
+                    print "\nOops! Error creating a list of friends from file\n"
+                    if options.gtk or options.webserver:
+                        return
+                    else:
+                        sys.exit(2)
         return status
 
     def remove_friend(self):
         """ 
-        Destroy a friendship with a user
+        Destroy a friendship with a user, or a list of users extracted from file
         """ 
         options = self.options
         tokens = self.try_running(self.get_env_tokens, "\nInternal error getting -Tokens- ") 
+        api = core.twitter.Api(self.consumer_key, self.consumer_secret, self.access_token_key, self.access_token_secret, proxy=options.proxy, request_headers=self.request_headers)
 
-        api = core.twitter.Api(self.consumer_key, self.consumer_secret, self.access_token_key, self.access_token_secret, proxy=options.proxy, request_headers=self.request_headers)   
-        status = api.DestroyFriendship(options.dfriend)
+        if options.dfriend:
+            status = api.DestroyFriendship(options.dfriend)
+        elif options.massdfriend:
+            try:
+                friends = lines = [line.strip() for line in open(options.massdfriend)]
+                count = len(friends)
+                if friends == []:
+                    print "You haven't a correct list of friends on that file. Try to put user screen names sepparated line by line.\n"
+                for update in friends:
+                    print update
+                    status = api.DestroyFriendship(update)
+            except URLError as u:
+                print "\n[Error] - ",u.reason.strerror, "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            except TwitterError as t:
+                try:
+                    print "\n[Error] - ",t, "\n"
+                    if options.gtk or options.webserver:
+                        return
+                    else:
+                        sys.exit(2)
+                except Exception:
+                    print "\nOops! Error destroying a list of friends from file\n"
+                    if options.gtk or options.webserver:
+                        return
+                    else:
+                        sys.exit(2)
         return status
 
     def create_block(self):
@@ -1147,7 +1350,7 @@ class anontwi(object):
         user = api.CreateBlock(screen_name=options.block)
         if user.id is None:
             print("\n[Error] - Something wrong or this user doesn't exists!!. Aborting..."), "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1163,7 +1366,7 @@ class anontwi(object):
         user = api.DestroyBlock(screen_name=options.unblock)
         if user.id is None:
             print("\n[Error] - Something wrong or this user doesn't exists!!. Aborting..."), "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1185,7 +1388,7 @@ class anontwi(object):
                 print "[Info]  - use tool, entering tokens every time: ./anontwi [OPTIONS] 'token key' 'token secret'"
                 print "[Info]  - use tool, WITHOUT entering tokens every time: ./anontwi --tokens"
                 print "\nAborting...\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1202,7 +1405,7 @@ class anontwi(object):
                 print "[Info]  - use tool entering tokens every time: ./anontwi [OPTIONS] 'token key' 'token secret'"
                 print "[Info]  - use tool WITHOUT entering tokens every time: ./anontwi --tokens"
                 print "\nAborting...\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1231,7 +1434,7 @@ class anontwi(object):
                 print "[Error] - You must provide correct latitude and longitude (ex: --gps '(-43.5209),146.6015')"
                 print "          If you dont put any (--gps), coordenates will be random :)\n"
                 print "[Error] - Sending message process has being aborted!\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1262,7 +1465,7 @@ class anontwi(object):
             else:
                 print"\n[Error] - PIN/Key option (--pin) is required!"
             print "\nAborting...\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1285,7 +1488,7 @@ class anontwi(object):
             else:
                 print "\n[Error] - PIN/Key option (--pin) is required!"
             print "\nAborting...\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1309,14 +1512,14 @@ class anontwi(object):
                 except IndexError:
                     print "\n[Error] - URL is not valid"
                     print "\nAborting...\n"
-                    if options.gtk:
+                    if options.gtk or options.webserver:
                         return
                     else:
                         sys.exit(2)
                 except TwitterError as t:
                     print "\n[Error] - ",t
                     print "\nAborting...\n"
-                    if options.gtk:
+                    if options.gtk or options.webserver:
                         return
                     else:
                         sys.exit(2)
@@ -1330,7 +1533,8 @@ class anontwi(object):
             if plaintext is None:
                 print "\n[Error] - PIN key is incorrect or message is corrupted"
                 print "\nAborting...\n"
-                if options.gtk:
+                print "key " + key
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1438,13 +1642,13 @@ class anontwi(object):
 	    api.CreateFavorite(status=options.favorite)	
 	except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1460,13 +1664,13 @@ class anontwi(object):
             api.DestroyFavorite(status=options.unfavorite)
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1495,16 +1699,67 @@ class anontwi(object):
         	return status, count
 	except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
+
+    def save_friends(self):
+        """
+        Save all friendships, of an authorized user, into a file
+        """
+        options = self.options
+        tokens = self.try_running(self.get_env_tokens, "\nInternal error getting -Tokens- ")
+        api = core.twitter.Api(self.consumer_key, self.consumer_secret, self.access_token_key, self.access_token_secret, proxy=options.proxy, request_headers=self.request_headers)
+        
+        try:
+            friends = api.GetFriends()
+            count = len(friends)
+            total_friends = 0
+            if friends == []:
+                print "You haven't friends, yet.\n"
+            for update in friends:
+                print update.screen_name
+                total_friends = total_friends + 1
+                if not os.path.isdir("backups/"):
+                    os.mkdir("backups/") 
+                if not os.path.exists("backups/"):
+                    path = os.mkdir("backups/")
+                path = "backups/"
+                # some unicode issues
+                name = ''
+                name = u' '.join((name, update.screen_name)).encode('utf-8').strip()
+                h = "/friends.txt"
+                f = open(path+h, 'a')
+                f.write(name + "\n")
+            f.close()
+            print "\n[Info] Congratulations. Saved", total_friends ,"friendships... \n"
+
+        except URLError as u:
+            print "[Error] - ",u.reason.strerror, "\n"
+            if options.gtk or options.webserver:
+                return
+            else:
+                sys.exit(2)
+        except TwitterError as t:
+            try:
+                print "[Error] - ",t, "\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+            except Exception:
+                print "\nOops! Error saving friendships on file\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2) 
 
     def save_favorites(self):
         """
@@ -1530,13 +1785,13 @@ class anontwi(object):
                 return status, user
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1567,14 +1822,14 @@ class anontwi(object):
             except IndexError:
                 eprint ("\n[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                 eprint ("\nAborting...\n")
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
             except ValueError:
                 eprint ("[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                 eprint ("\nAborting...\n")
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1604,13 +1859,13 @@ class anontwi(object):
             return status
         except URLError as u:
             print "\n[Error] - ",u.reason.strerror, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
         except TwitterError as t:
             print "\n[Error] - ",t, "\n"
-            if options.gtk:
+            if options.gtk or options.webserver:
                 return
             else:
                 sys.exit(2)
@@ -1638,7 +1893,7 @@ class anontwi(object):
                     print('='*75)
                     print ("\n[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                     print ("\nAborting...\n")
-                    if options.gtk:
+                    if options.gtk or options.webserver:
                         return
                     else:
                         sys.exit(2)
@@ -1648,19 +1903,19 @@ class anontwi(object):
                 print('='*75)
                 print ("\n[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                 print ("\nAborting...\n")
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
 
-#       if options.webserver:
-#	        eprint("Running webserver\n")
-#	        AnonTwiWebserver(self)
-#	        sys.exit(0)
+        if options.webserver:
+            eprint("Running webserver\n")
+            AnonTwiWebserver(self)
+            sys.exit(0)
         
         if options.ircbot:
 	    eprint("Running irc bot client\n")
-            if options.gtk:
+            if options.gtk or options.webserver:
                 pass
             else:
                 try:
@@ -1694,7 +1949,7 @@ class anontwi(object):
             self.IRCdeploy(user, host, port, chan)
 	    sys.exit(0)
 
-        if options.gtk: 
+        if options.gtk or options.webserver: 
             from core.gtk.anontwigtk import AnontwiGTK
             AnontwiGTK.run()
             sys.exit(0)
@@ -1731,9 +1986,15 @@ class anontwi(object):
             print('='*75), "\n"
             searches = self.try_running(self.search_messages, "\nInternal error searching -message-. look at the end of this Traceback.")
             
+            if searches==None:
+                print "Search returns None.\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
             if len(searches) <= 0:
                 print "Search doesn't get any results.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1748,10 +2009,11 @@ class anontwi(object):
                         else:
                             print "Nick:\033[1;34m", s.user.screen_name, "\033[1;m"
                     else:
-                        if s.user.name is not None:
-                            print "Name:", h.unescape(s.user.name), "- Nick:", s.user.screen_name
-                        else:
-                            print "Nick:", s.user.screen_name
+                        if s.user is not None:
+                            if s.user.name is not None:
+                                print "Name:", h.unescape(s.user.name), "- Nick:", s.user.screen_name
+                            else:
+                                print "Nick:", s.user.screen_name
  		    if options.rgb:
                         print "Tweet-ID:\033[1;36m", s.id, "\033[1;m"
                     else:
@@ -1784,7 +2046,7 @@ class anontwi(object):
                 trendingtopics = self.try_running(self.search_topics, "\nInternal error searching -trending topics-. look at the end of this Traceback.")
             if len(trendingtopics) <= 0:
                 print "Something wrong getting trending topics... Aborting!\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1792,13 +2054,12 @@ class anontwi(object):
                 print("Trending Topics:")
                 h = HTMLParser.HTMLParser()
                 print("========\n")
-                for t in trendingtopics:
-                    for item in t.timestamp["trends"]:
-                        self.topic = item["name"]
-                        if options.rgb:
-                            print "\033[1;31m", h.unescape(self.topic), "\033[1;m"
-                        else:
-                            print(h.unescape(self.topic))
+                for item in trendingtopics:
+                    self.topic = item.name
+                    if options.rgb:
+                        print "\033[1;31m", h.unescape(self.topic), "\033[1;m"
+                    else:
+                        print(h.unescape(self.topic))
                 print "======", "\n"
 
         if options.suicide:
@@ -1837,7 +2098,7 @@ class anontwi(object):
             (mentions, num) = self.try_running(self.show_mentions, "\nInternal error searching -mentions- about you. look at the end of this Traceback.")
             if len(mentions) <= 0:
                 print "Search doesn't get any results.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1892,7 +2153,7 @@ class anontwi(object):
             
             if len(timelines) <= 0:
                 print "This user hasn't tweeted yet.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -1965,7 +2226,7 @@ class anontwi(object):
 
             if len(dms) <= 0:
                 print "Search doesn't get any results.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -2005,7 +2266,7 @@ class anontwi(object):
             (timelinesf, count) = self.try_running(self.show_timeline_friends, "\nInternal error searching -timeline-. look at the end of this Traceback.")
             if len(timelinesf) <= 0:
                 print "This user hasn't tweeted yet.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:                      
                     sys.exit(2)
@@ -2014,7 +2275,7 @@ class anontwi(object):
                 print "---------"
 
                 if int(len(timelinesf)) < int(count):
-                    count = int(len(timelinesf))          
+                    count = int(len(timelinesf))
                 for i in range(int(count)):
                     if options.rgb:
                         print "Name:\033[1;31m", h.unescape(timelinesf[i].user.name), "\033[1;m", "- Nick:\033[1;34m", timelinesf[i].user.screen_name, "\033[1;m"
@@ -2056,7 +2317,7 @@ class anontwi(object):
             (favorites, count) = self.try_running(self.show_favorites, "\nInternal error searching -favorites-. look at the end of this Traceback.")
             if len(favorites) <= 0:
                 print "No results.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -2090,7 +2351,7 @@ class anontwi(object):
         # step 1: get message/image/DM to send and sanitize them
         messages = self.try_running(self.get_messages, "\nInternal error getting -message-. look at the end of this Traceback.")
         #(messages, dm, image) = self.sanitize_messages(messages)
-        (messages, dm) = self.sanitize_messages(messages)
+        (messages, dm, mdm) = self.sanitize_messages(messages)
        
         # send retweets
         retweets = self.try_running(self.get_tweetids, "\nInternal error sending -retweet-. look at the end of this Traceback.")
@@ -2098,10 +2359,6 @@ class anontwi(object):
         # remove tweets
         if options.rmtweet:
             rmtweets = self.try_running(self.remove_tweet, "\nInternal error removing -message-. look at the end of this Traceback.")
-
-        # remove direct messages
-        if options.rmdm:
-            rmdms = self.try_running(self.remove_dm, "\nInternal error removing -direct message-. look at the end of this Traceback.")
 
         # step 2: de/encryption processes
         if options.encaes:
@@ -2112,7 +2369,7 @@ class anontwi(object):
                 print len(key)
                 print "\n[Error] - Invalid PIN key. Try to generate automatically (ex: --gen)"
                 print "\nAborting...\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -2124,7 +2381,7 @@ class anontwi(object):
             except ValueError:
                 print "\n[Error] - Invalid PIN key. Try to generate automatically (ex: --gen)"
                 print "\nAborting...\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
@@ -2134,6 +2391,12 @@ class anontwi(object):
             if options.dm:
                 dm = self.try_running(self.send_dm, "\nInternal error sending -DM- ", (messages, dm))
                 print "[Info] DM sent correctly!", "\n"
+            elif options.mdm:
+                mdm = self.try_running(self.send_mdm, "\nInternal error sending massive -DMs- to all your friends ", (messages, mdm))
+                print "\n[Info] Massive DM to all your friends sent correctly!", "\n"
+            elif options.ldm:
+                ldm = self.try_running(self.send_mdm, "\nInternal error sending massive -DMs- to all your friends ", (messages, options.ldm))
+                print "\n[Info] Massive DM to your list of friends sent correctly!", "\n"
             elif options.wave:
                 if options.location:
                     (latitude, longitude) = self.get_location()
@@ -2199,7 +2462,7 @@ class anontwi(object):
 
         # remove direct message
         elif options.rmdm:
-            rmdm = self.try_running(self.remove_dm, "\nInternal error removing -message- ", rmdms)
+            rmdm = self.try_running(self.remove_dm, "\nInternal error removing -message- ")
             print "\n[Info] Direct Message removed correctly!", "\n"
 
         # create friendship
@@ -2207,15 +2470,20 @@ class anontwi(object):
             friend = self.try_running(self.set_friend, "\nInternal error creating -friendship- ")
             print "\n[Info] Your request to friendship with:", options.friend, "was successfully sent!", "\n"
 
-        # create massive friendship from file (file.txt)
-        #if options.massfriend:
-        #    friend = self.try_running(self.set_friend, "\nInternal error creating -friendship- ")
-        #    print "[Info] Your request to friendship list was successfully sent!", "\n"
+        #  create massively friendships from file (file.txt)
+        if options.massfriend:
+            massfriend = self.try_running(self.set_friend, "\nInternal error creating massively -friendships- from file ")
+            print "\n[Info] Your massively creating request friendships list was successfully sent!", "\n"
 
         # destroy friendship
         if options.dfriend:
             dfriend = self.try_running(self.remove_friend, "\nInternal error destroying -friendship- ")
             print "\n[Info] Your request to destroy friendship with:", options.dfriend, "was successfully sent!", "\n"
+
+        # destroy massively friendships from file (file.txt)
+        if options.massdfriend:
+            massdfriend = self.try_running(self.remove_friend, "\nInternal error destroying massively -friendships- from file ")
+            print "\n[Info] Your massively destroy request friendships list was successfully sent!", "\n"
 
         # create block
         if options.block:
@@ -2237,6 +2505,17 @@ class anontwi(object):
 	    favorite = self.try_running(self.destroy_favorite, "\nInternal error destroying -favorite- ")
             print "\n[Info] Your request to destroy favorite was successfully sent!", "\n"
 
+	# get friend list
+	if options.friendlist:
+	    friendlist = self.try_running(self.friendlist, "\nInternal error getting -friendlist- ")
+            if friendlist:
+                print "\n[Info] Your friends are : ", "\n"
+                for f in friendlist :
+                    print "       "+f.GetName()+ '(' + f.GetScreenName() +")\n"
+            else:
+                print "\n[Info] You don't have any friends! ", "\n"
+                
+            
         # change 'source' value
         #if options.via:
         #    source = self.try_running(self.set_via, "\nInternal error setting -via- detailed on website ")
@@ -2247,24 +2526,20 @@ class anontwi(object):
 	    print('='*75)
             print(str(p.version))
             print('='*75)
-            h = HTMLParser.HTMLParser()
+            print("Starting to save your messages into a file. This can take a time... :)")
+            print('='*75)
 	    (saved,user) = self.try_running(self.save_timeline, "\nInternal error getting -Tokens- ")
-            if saved is None:
-                print("Saving messages:")
-            else:
-                if options.rgb:
-                    print("Saving messages:"), "\033[1;34m", user, "\033[1;m"
-                else:
-                    print("Saving messages:"), user
-            print('='*75), "\n"
-
+          
             if saved == []:
                 print "This user hasn't tweet anything yet.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
+            sn = 0
             for s in saved:
+                h = HTMLParser.HTMLParser()
+                sn = sn + 1
                 if options.rgb:
                     print "[Saved]:", s.created_at,
                     print "\033[1;37m", h.unescape(s.text), "\033[1;m"
@@ -2303,32 +2578,37 @@ class anontwi(object):
                     f.write(place + "\n")
                 f.write("======" + "\n")
             f.close()
+            print "\n[Info] Congratulations. Saved", sn ,"messages... \n"
 
-            print "\n[Info] Congratulations. Your messages backup is done!", "\n"
+        # store friendships to disk
+        if options.savef:
+	    print('='*75)
+            print(str(p.version))
+            print('='*75)
+            print("Starting to save your friendships into a file. This should be faster! :)")
+            print('='*75)
+            h = HTMLParser.HTMLParser()
+	    saved = self.try_running(self.save_friends, "\nInternal error getting -Tokens- ")
 
         # store favorites to disk
         if options.savefavs:
 	    print('='*75)
             print(str(p.version))
             print('='*75)
+            print("Starting to save your favorites into a file. This can take a time... :)")
+            print('='*75)
             h = HTMLParser.HTMLParser()
 	    (savedfavs,user) = self.try_running(self.save_favorites, "\nInternal error getting -Tokens- ")
-            if savedfavs is None:
-                print("Saving favorites:")
-            else:
-                if options.rgb:
-                    print("Saving favorites:"), "\033[1;34m", user, "\033[1;m"
-                else:
-                    print("Saving favorites:"), user
-            print('='*75), "\n"
-
+       
             if savedfavs == []:
                 print "This user hasn't create favorites yet.\n"
-                if options.gtk:
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
+            fn = 0
             for s in savedfavs:
+                fn = fn + 1
                 if options.rgb:
                     print "[Saved]:", s.created_at,
                     print "\033[1;37m", h.unescape(s.text), "\033[1;m"
@@ -2368,7 +2648,7 @@ class anontwi(object):
                 f.write("======" + "\n")
             f.close()
 
-            print "\n[Info] Congratulations. Your favorites backup is done!", "\n"
+            print "\n[Info] Congratulations. Saved", fn ,"favorites... \n"
 
         # generate a PIN key if requested
         if options.genkey:
@@ -2398,14 +2678,14 @@ class anontwi(object):
                 except IndexError:
                     eprint ("\n[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                     eprint ("\nAborting...\n")
-                    if options.gtk:
+                    if options.gtk or options.webserver:
                         return
                     else:
                         sys.exit(2)
                 except ValueError:
                     eprint ("[Error] - Proxy is malformed. For example, to launch with TOR use: --proxy 'http://127.0.0.1:8118'")
                     eprint ("\nAborting...\n")
-                    if options.gtk:
+                    if options.gtk or options.webserver:
                         return
                     else:
                         sys.exit(2)
@@ -2421,6 +2701,7 @@ class anontwi(object):
         options = self.options
         all_messages = set()
         dm_user = set()
+        mdm_user = set()
         #image = set()
 
         for message in messages:
@@ -2442,7 +2723,6 @@ class anontwi(object):
                 if options.dm:
                     if "@" in options.dm and "identi.ca" in self.source_api:
                         options.dm=options.dm[1:len(options.dm)]
-
                     if options.rgb:
                         print "To:\033[1;31m", options.dm, "\033[1;m"
                     else:
@@ -2450,15 +2730,39 @@ class anontwi(object):
                     print "------\n"
                     dm_user.add(options.dm)
 
+                elif options.mdm:
+                    if "@" in options.mdm and "identi.ca" in self.source_api:
+                        options.mdm=options.mdm[1:len(options.mdm)]
+                    if options.rgb:
+                        print "Sending to friends of:\033[1;31m", options.mdm, "\033[1;m"
+                    else:
+                        print "Sending to friends of:", options.mdm
+                    print "------"
+                    mdm_user.add(options.mdm)
+
             if options.dm and not options.tweet:
-                print "\n[Error] - you must enter a message to send, using option -m  (ex: -d '@nick' -m 'text')\n"
-                if options.gtk:
+                print "\n[Error] - you must enter a message to send, using option -m (ex: -d '@nick' -m 'text')\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+
+            elif options.mdm and not options.tweet:
+                print "\n[Error] - you must enter a message to send massively, using option -m (ex: --mdm '@nick' -m 'text')\n"
+                if options.gtk or options.webserver:
+                    return
+                else:
+                    sys.exit(2)
+
+            elif options.ldm and not options.tweet:
+                print "\n[Error] - you must enter a message to send to the list of friends of your file, try using option -m (ex: --ldm 'file.txt' -m 'text')\n"
+                if options.gtk or options.webserver:
                     return
                 else:
                     sys.exit(2)
 
         #return all_messages, dm_user, image
-        return all_messages, dm_user
+        return all_messages, dm_user, mdm_user
 
     #GTK/Wrapper
     def get_user_info(self,
@@ -2471,31 +2775,37 @@ class anontwi(object):
         Get user info
         """
         api = core.twitter.Api(consumer_key, consumer_secret, access_token_key, access_token_secret, proxy=proxy, request_headers=self.request_headers)
-        
+
         try:
             #at the moment, get user timeline for future feature
             status = api.GetUserTimeline(api.VerifyCredentials().screen_name, count=0, include_rts=1)
         except TwitterError as t:
             print "[Error] - ",t,"\n"
-        
-        for s in status:
-            nickid = s.user.name
-            user = s.user.screen_name
-            description = s.user.description
-            friends = s.user.friends_count
-            followers = s.user.followers_count
-            #following = s.user.following_count
-            url_profile = s.user.profile_image_url
-            statuses_count = s.user.statuses_count
-        
-        user_info = {'nickid':nickid,
-                     'user':user,
-                     'description':description,
-                     'friends':friends,
-                     'followers':followers,
-                     'url_profile':url_profile,
-                     'statuses_count':statuses_count}
-                     #'following':following}
+            return "hmm"
+
+        try:
+            for s in status:
+                nickid = s.user.name
+                user = s.user.screen_name
+                description = s.user.description
+                friends = s.user.friends_count
+                followers = s.user.followers_count
+                #following = s.user.following_count
+                url_profile = s.user.profile_image_url
+                statuses_count = s.user.statuses_count
+                
+            user_info = {'nickid':nickid,
+                         'user':user,
+                         'description':description,
+                         'friends':friends,
+                         'followers':followers,
+                         'url_profile':url_profile,
+                         'statuses_count':statuses_count}
+        except Error as e:
+            print "[Error] - ",t,"\n"
+            return {}
+            
+                
         return user_info
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ $Id$
 
 This file is part of the cintruder project, http://cintruder.sourceforge.net.
 
-Copyright (c) 2012/2015 psy <root@lordepsylon.net> - <epsylon@riseup.net>
+Copyright (c) 2012/2013 psy <root@lordepsylon.net> - <epsylon@riseup.net>
 
 cintruder is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free

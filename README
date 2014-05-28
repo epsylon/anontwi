@@ -30,6 +30,7 @@ AnonTwi gives you:
       + Backup messages to your disk (max: 3200)
       + Send fake geolocation places
       + Remove data and close account (suicide)
+      + Send massive Direct Messages to all your friends
       + View global Trending Topics
       + UTF-8 + Unicode support (chinese, arabic, symbols, etc)
       + Multiplatform: GNU/Linux, MacOS, Win32
@@ -84,7 +85,6 @@ On Windows systems, is working (tested!) with:
 
               easy_install.exe <packages>
 
-
 ------------------------
 Step 1) "Consumer" keys:
 ------------------------
@@ -114,7 +114,6 @@ Step 1) "Consumer" keys:
 
       - Now, you are ready to generate your: secret "Token" keys. Step 2.
 
-
 ---------------------
 Step 2) "Token" keys:
 ---------------------
@@ -137,7 +136,6 @@ Step 2) "Token" keys:
      If you did it, you can start to launch -AnonTwi- commands like this:
 
        ./anontwi [-m 'text' | -r 'ID' | -d @user | -f @nick | -u @nick] [OPTIONS]
-
 
 =========
 Examples:                                 
@@ -250,6 +248,18 @@ Remove a DM:
                  - launch "--td 'num'" to see Direct Messages IDs of your account.
 
         ./anontwi --rm-d "ID"
+
+------------------------------------------------------------------
+Send a massive DM (Direct Message) to all your friends, using TOR:
+------------------------------------------------------------------
+
+        ./anontwi -m "Today is my birthday" --mdm "@your_nick" --proxy "http://127.0.0.1:8118"
+
+-----------------------------------------------------------------
+Send a massive encrypted DM (Direct Message) to all your friends:
+-----------------------------------------------------------------
+
+        ./anontwi -m "Today is my birthday" --mdm "@your_nick" --enc --pin "EqIAp9VaQNYR4KVSdIvii/6Mb+31LN1umleYB3KTcu8="
 
 --------------------------------------
 Send a media message, using TOR:

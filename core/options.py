@@ -5,7 +5,7 @@ $Id$
 
 This file is part of the anontwi project, http://twitwi.sourceforge.net.
 
-Copyright (c) 2012/2015 psy <root@lordepsylon.net> - <epsylon@riseup.net>
+Copyright (c) 2012/2013 psy <root@lordepsylon.net> - <epsylon@riseup.net>
 
 anontwi is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free
@@ -27,8 +27,8 @@ class AnonTwiOptions(optparse.OptionParser):
         optparse.OptionParser.__init__(self, 
                            #description='FIGHT CENSORSHIP!! being more safe on social networking sites...',
                            prog='anontwi.py',
-                           version='\nAnonTwi [1.0b] - 2012 - http://anontwi.sf.net -> by psy\n', 
-                                       usage= '\n\n Info: check README file (examples and contact included).\n\n Syntax: ./anontwi [OPTIONS] [--tokens] [--gtk | --irc=] [Controller] [Miscellania] [Encryption]')
+                           version='\nAnonTwi [1.1b] - 2013 - http://anontwi.sf.net -> by psy\n', 
+                                       usage= '\n\n Info: check README file (examples and contact included).\n\n Syntax: ./anontwi [OPTIONS] [--tokens] [--gtk | --web | --irc=] [Controller] [Miscellania] [Encryption]')
 
         #self.add_option("-v", "--verbose", action="store_true", dest="verbose", help="active verbose mode output results")
         group4 = optparse.OptionGroup(self, "API")
@@ -37,17 +37,21 @@ class AnonTwiOptions(optparse.OptionParser):
 
         group5 = optparse.OptionGroup(self, "Interfaces")
         group5.add_option("--gtk", action="store_true", dest="gtk", help="start GTK+ Window Interface (visual mode)")
-        #group5.add_option("--web", action="store_true", dest="webserver", help="start WeGUI server on: 'http://localhost:8080'")
+        group5.add_option("--web", action="store_true", dest="webserver", help="start WeGUI server on: 'http://localhost:8080'")
         group5.add_option("--irc", action="store", dest="ircbot", help="start an IRC slave bot, connected to Anontwi: 'anontwibot@irc.freenode.net:6667#anontwi'")
         self.add_option_group(group5)
 
         group3 = optparse.OptionGroup(self, "Controller")
         group3.add_option("-m", action="store", dest="tweet", help="send Tweet (ex: -m 'text')")
         group3.add_option("-r", action="store", dest="retweet", help="reTweet and existing message (ex: -r 'ID')")
-        group3.add_option("-d", action="store", dest="dm", help="send Direct Message (ex: -m 'text' -d '@user')")
+        group3.add_option("-d", action="store", dest="dm", help="send a Direct Message (ex: -m 'text' -d '@user')")
+        group3.add_option("--mdm", action="store", dest="mdm", help="send a Direct Message massively, to all your friends (ex: -m 'text' --mdm '@your_authorized_user')")
+        group3.add_option("--ldm", action="store", dest="ldm", help="send a DM from a list (ex: -m 'text' --ldm 'list.txt')")
         #group3.add_option("-i", action="store", dest="image", help="send an IMAGE, using spoofed headers and fake metadata")
         group3.add_option("-f", action="store", dest="friend", help="create friendship with a user (ex: -f '@user')")
         group3.add_option("-u", action="store", dest="dfriend", help="destroy friendship with a user (ex: -u '@user')")
+        group3.add_option("--mf", action="store", dest="massfriend", help="create friendships from a list (ex: --fm 'list.txt')")
+        group3.add_option("--md", action="store", dest="massdfriend", help="destroy friendships from a list (ex: --fm 'list.txt')")
         group3.add_option("--reply", action="store", dest="reply", help="reply conversation (ex: -m '@user text' --reply 'ID')")
         group3.add_option("--fav", action="store", dest="favorite", help="create favorite (ex: --fav 'ID')")
         group3.add_option("--unfav", action="store", dest="unfavorite", help="destroy favorite (ex: --unfav 'ID')")
@@ -56,8 +60,7 @@ class AnonTwiOptions(optparse.OptionParser):
         group3.add_option("--rm-m", action="store", dest="rmtweet", help="remove Tweet (ex: --rm-m 'ID')")
         group3.add_option("--rm-d", action="store", dest="rmdm", help="remove Direct Message (ex: --rm-d 'ID')")
         group3.add_option("--suicide", action="store_true", dest="suicide", help="remove Tweets, DMs and try to close account")
-        #group3.add_option("--mf", action="store", dest="massfriend", help="create massive friendships (ex: --fm 'list.txt')")
-        #group3.add_option("--md", action="store", dest="massdfriend", help="destroy massive friendships (ex: --fm 'list.txt')")
+        group3.add_option("--fl", action="store_true", dest="friendlist", help="list friends")
         self.add_option_group(group3)
 
         group1 = optparse.OptionGroup(self, "Miscellania")
@@ -70,6 +73,7 @@ class AnonTwiOptions(optparse.OptionParser):
         group1.add_option("--tt", action="store_true", dest="topics", help="check global Trending Topics (ex: --tt)")
         group1.add_option("--me", action="store", dest="mentions", help="returns recent mentions about you (ex: --me '5')")
         group1.add_option("--save", action="store", dest="save", help="save tweets starting from the last (max: 3200)")
+        group1.add_option("--save-f", action="store_true", dest="savef", help="save all your friendships in: backups/friends.txt")
         group1.add_option("--tfav", action="store", dest="showfavs", help="returns favorites (ex: --tfav '@nick 10')")
         group1.add_option("--sfav", action="store", dest="savefavs", help="save favorites (ex: --sfav '@nick 10')")
         group1.add_option("--waves", action="store_true", dest="wave", help="split long message into waves (ex: -m 'text' --waves)")
@@ -88,7 +92,7 @@ class AnonTwiOptions(optparse.OptionParser):
     def get_options(self, user_args=None):
         (options, args) = self.parse_args(user_args)
         options.args = args
-        if (not options.gtk and not options.encaes and not options.ircbot and not options.showfavs and not options.savefavs and not options.favorite and not options.unfavorite and not options.tokens and not options.tweet and not options.dm and not options.search and not options.friend and not options.dfriend and not options.retweet and not options.timelinef and not options.timeline and not options.timelinedm and not options.mentions and not options.genkey and not options.decaes and not options.save and not options.topics and not options.rmtweet and not options.rmdm and not options.suicide and not options.block and not options.unblock and not options.shorturl):
+        if (not options.gtk and not options.webserver and not options.encaes and not options.ircbot and not options.showfavs and not options.savefavs and not options.favorite and not options.unfavorite and not options.tokens and not options.tweet and not options.dm and not options.search and not options.friend and not options.massfriend and not options.dfriend and not options.massdfriend and not options.retweet and not options.timelinef and not options.timeline and not options.timelinedm and not options.mentions and not options.genkey and not options.decaes and not options.save and not options.savef and not options.topics and not options.rmtweet and not options.rmdm and not options.suicide and not options.block and not options.unblock and not options.friendlist and not options.shorturl):
             print '='*75
             print  self.version
             print '='*75, "\n"
@@ -111,7 +115,7 @@ class AnonTwiOptions(optparse.OptionParser):
             print "---------------\n"
             print "GUI Interfaces:"
             print "    * GTK+ (Graphical): --gtk"
-            #print "    * WebGUI: use --web"
+            print "    * WebGUI: use --web"
             print "    * IRC-Bot: --irc='nick@server:port#channel'\n"
             print '='*55, "\n"
             return False

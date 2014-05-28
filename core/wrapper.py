@@ -20,10 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os, sys
 import logging
 
-from core.gtk.config_gtk import * 
-from core.gtk.error import AnontwiError
-from core.main import anontwi
-from core.encrypt import generate_key
+from gtk.config_gtk import * 
+from gtk.error import AnontwiError
+from main import anontwi
+from encrypt import generate_key
 
 class IOManager(object):
     def __init__(self):
@@ -57,7 +57,7 @@ class WrapperAnontwi():
         self.log.debug('Secret Token: ' + access['secret_token'])
         cmd.append(access['access_token'])
         cmd.append(access['secret_token'])
-        self.log.debug('[_create_options] cmd: ' + str(cmd))
+#        print('[_create_options] cmd: ' + str(cmd))
 
         self.options = self.app.create_options(cmd)
         self.app.set_options(self.options)
@@ -173,7 +173,39 @@ class WrapperAnontwi():
         if proxy and proxy['proxy']:
             cmd.append('--proxy=' + proxy['ip_address'] + ':' + proxy['port'])
         try: 
-            print "CMD ", cmd
+            self._create_options(cmd)
+            return self._run(cmd)
+        except:
+            return False
+
+    def send_mdm(self, tweet, 
+                        pm = None,
+                        enc = None,
+                        proxy = None):
+        """Send massive private message to friends.
+            Args: 
+                tweet: text message to send.
+                pm:    {'pm' : 'bool value - is a pm message?,
+                        'user' : 'name of the user recipient'} 
+                enc:   {'enc' : 'bool value - encrypt the message?,
+                        'pin : 'pin key for encrypted msg.' }
+                proxy: {'proxy' : 'bool value - is proxy enable?',
+                        'ip_address' : 'ip addres for proxy',
+                        'port' : 'port for proxy'}
+        """
+        if os.path.isfile ('anontwi'):
+            cmd = ['./anontwi']
+        else:
+            cmd = ['anontwi']
+        if pm['pm'] is True:
+            cmd.append('-m ' + tweet.strip() )
+            cmd.append('--mdm=' + pm['user'])
+        if enc and enc['enc']:
+            cmd.append('--enc')
+            cmd.append('--pin=' + enc['pin'])
+        if proxy and proxy['proxy']:
+            cmd.append('--proxy=' + proxy['ip_address'] + ':' + proxy['port'])
+        try: 
             self._create_options(cmd)
             return self._run(cmd)
         except:
@@ -198,6 +230,17 @@ class WrapperAnontwi():
         msg = app.decrypt(messages, key)
         self.log.debug('[decrypt] Msg decrypted: ' + str(msg))
         return msg
+
+    def friendlist(self, proxy):
+        cmd = ['anontwi']
+        cmd.append('--fl')
+        if proxy and proxy is not None and proxy['proxy'] is True:
+            cmd.append('--proxy=' + proxy['ip_address'] + ':' + proxy['port'])
+        self._create_options(cmd)
+        app = self.get_app()
+        fl = app.friendlist()
+        self.log.debug('[friendlist] found ' + str(len(fl)) +' friends')
+        return fl
 
     def get_user_info(self, proxy):
         self.log.debug('[get_user_info] loading info...')
@@ -339,7 +382,7 @@ class WrapperAnontwi():
     def search_messages(self, textsearch, 
                         num_ocurrences, proxy=None):
         cmd = ["anontwi"]
-        cmd.append('--ts=' + textsearch + " " + num_ocurrences)
+        cmd.append('--ts="' + textsearch + '" ' + num_ocurrences)
         if proxy:
             cmd.append('--proxy=' + proxy['ip_address'] + ':' + proxy['port'])
         self._create_options(cmd)
@@ -351,7 +394,7 @@ class WrapperAnontwi():
         key = generate_key()
         return key
 
-    def search_topics(self, proxy=None):
+    def search_topics(self, proxy=None, count=10):
         cmd = ["anontwi"]
         cmd.append('--tt')
         if proxy:
@@ -359,18 +402,23 @@ class WrapperAnontwi():
         self._create_options(cmd)
         app = self.get_app()
         topics = app.search_topics()
-        trendingtopics = ""
+        trendingtopics = []
         for t in topics:
-            for item in t.timestamp["trends"]:
-                self.topic = item["name"]
-                trendingtopics = trendingtopics + self.topic + '\n'
-        return trendingtopics
+            count = count - 1
+            trendingtopics.append(t.name)
+            if count == 0:
+                return trendingtopics
+#            for item in t.timestamp["trends"]:
+#                self.topic = item["name"]
+#                trendingtopics = trendingtopics + self.topic + '\n'
+
+#        return trendingtopics
 
     def home_timeline(self, num, proxy=None):
         cmd = ["anontwi"]
         cmd.append("--tf")
         if proxy:
-            cmd.append('--proxy=' + proxy)
+            cmd.append('--proxy=' + proxy['ip_address'] + ':' + proxy['port'])
         self.log.debug('[Home] CMD: ' + str(cmd))
         self._create_options(cmd)
         app = self.get_app()
@@ -408,7 +456,7 @@ class WrapperAnontwi():
     def show_private(self, num_ocurrences, proxy=None):
         cmd = ["anontwi"]
         cmd.append('--td=' + num_ocurrences)
-        if proxy:
+        if proxy and proxy != None:
             cmd.append('--proxy=' + proxy['ip_address'] + ':' + proxy['port'])
         self.log.debug('[Private] CMD: ' + str(cmd))
         self._create_options(cmd)
@@ -421,7 +469,7 @@ class WrapperAnontwi():
     def show_public(self, user, num_ocurrences, proxy=None):
         cmd = ["anontwi"]
         cmd.append('--tu=' + user + " " + num_ocurrences)
-        if proxy:
+        if proxy and proxy != None:
             cmd.append('--proxy=' + proxy)
         self.log.debug('[Public] CMD: ' + str(cmd))
         self._create_options(cmd)
@@ -436,7 +484,6 @@ class WrapperAnontwi():
         cmd.append('--short=' + url) 
         if proxy:
             cmd.append('--proxy=' + proxy['ip_address'] + ':' + proxy['port'])
-        print "CMD ", cmd
         self._create_options(cmd)
         app = self.get_app()
         short_url = app.short_url()
