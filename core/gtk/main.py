@@ -226,6 +226,9 @@ class GuiMain(object):
         self.rbPM = builder.get_object('rbPM')
         self.tbPM = builder.get_object('tbPM')
         self.hbPM = builder.get_object('hbPM')
+        self.hbMDM = builder.get_object('hbMDM')
+        self.hbLDM = builder.get_object('hbLDM')
+        self.chkMdm = builder.get_object('chkMdm')
         self.chkGps = builder.get_object('chkGps')
         self.chkCipher = builder.get_object('chkCipher')
         self.chkTor = builder.get_object('chkTor')
@@ -327,6 +330,7 @@ class GuiMain(object):
         self.chkCipher.connect('toggled', lambda w: self.switch('Cipher'))
         self.chkTor.connect('toggled', lambda w: self.switch('Tor'))
         self.rbPM.connect('toggled', lambda w: self.switch('PM'))
+        self.rbTweet.connect('toggled', lambda w: self.tweet_mdm())
         self.bDecrypt.connect('clicked', lambda w: self.decrypt())
         self.bRandomPin.connect('clicked', lambda w: self.generate_key())
         self.bTry.connect('clicked', lambda w: self.search_messages())
@@ -371,11 +375,14 @@ class GuiMain(object):
         self.cWave.connect('clicked', lambda w: self.on_cWave_toggled())
         self.chkGps.connect('clicked', lambda w: self.on_chkGps_toggled())
 #        self.bIRCDeploy.connect('clicked', lambda w: self.on_bIRCDeploy_pressed())
+        self.chkMdm.connect('clicked', lambda w: self.on_chkMdm_toggled())
 
         # defaults
         self.hbPin.set_visible(False)
         self.hbTor.set_visible(False)
         self.hbPM.set_visible(False)
+        self.hbMDM.set_visible(False)
+        self.hbLDM.set_visible(False)
         self.chkGps.set_visible(True)
         self.tbPinEncrypt.set_max_length(44)
         self.tbPinDecrypt.set_max_length(44)
@@ -466,7 +473,9 @@ class GuiMain(object):
         if layer == 'Tor': 
             self.hbTor.set_visible(not self.hbTor.get_visible())
         if layer == 'PM':
-            self.hbPM.set_visible(not self.hbPM.get_visible())
+            self.hbPM.set_visible(True)
+            self.hbMDM.set_visible(True)
+            self.hbLDM.set_visible(True)
             self.chkGps.set_visible(not self.chkGps.get_visible())
 
     def Show(self):
@@ -576,16 +585,15 @@ class GuiMain(object):
                 self.lNumChars.set_text(str(self.lenght_tweet))
                 self.lNumWaves.set_text(str(self.num_tweets))
 
-    def send_tweet(self):
+    def send_mdm(self):
         tb = gtk.TextBuffer()
         textbuffer = self.tvTweet.get_buffer()
         tweet = textbuffer.get_text(textbuffer.get_start_iter() , textbuffer.get_end_iter())
+        user = str(self.eUserPublic.get_text())
         enc = { 'enc' : self.chkCipher.get_active(),
                 'pin' : self.tbPinEncrypt.get_text(), }
         pm = { 'pm' : self.rbPM.get_active(),
-               'user' : self.tbPM.get_text(), }
-        gps = self.chkGps.get_active()
-        wave = self.cWave.get_active()
+               'user' : user, }
         proxy = { 'proxy' : self.chkTor.get_active(),
                   'ip_address' : self.tbIPAddress.get_text(),
                   'port' : self.tbPort.get_text() }
@@ -623,20 +631,14 @@ class GuiMain(object):
                 self.lNumWaves.set_text(str(self.num_tweets))
         try:
             # check lenght of message and if waves are required.
-            if self.cWaveOn == False and self.lenght_tweet > 140:
-                GuiUtils.Error("Error: Wave required", "Your message has more than 140 characters. You must activate waves mode to send it splitted by blocks.")
+            if self.lenght_tweet > 140:
+                GuiUtils.Error("Error: Private messages restriction!", "Your message has more than 140 characters. Try to short it.")
                 return
             else:
-                msg = self.wrapper.send_tweet(tweet, pm, gps, wave, enc, proxy)
-                if proxy is not None:
-                    self.log.debug('Tweet sent with proxy: ' + proxy['ip_address'] + ':' + proxy['port'])
-                if self.cWaveOn == True:
-                    GuiUtils.Info("Wave sent!", "Wave sent correctly!")
-                else:
-                    if pm['pm'] is not False:
-                        GuiUtils.Info("Private sent!", "Private sent correctly!")
-                    else:
-                        GuiUtils.Info("Message sent!", "Message sent correctly!")
+                msg = self.wrapper.send_mdm(tweet, pm, enc, proxy)
+                if pm['pm'] is not False:
+                    GuiUtils.Info("Private sent!", "Massively private direct message to friends sent!")
+
                 # removing message and restarting counters
                 textbuffer = self.tvTweet.get_buffer().set_property("text", "")
                 self.lenght_tweet = 0
@@ -645,19 +647,96 @@ class GuiMain(object):
                 self.lNumWaves.set_text(str(self.num_tweets))
                 if pm['pm'] is not False: #refresh privates timeline
                     self.privates()
-                else: # refresh the other options
-                    self.home_timelines()
-                    self.public_timelines()
         except:
-            if self.cWaveOn == True:
-                GuiUtils.Error("Error!", "Something went wrong with your wave! :(")
-                return
+            if pm["pm"] is not False:
+                GuiUtils.Error("Error!", "Something went wrong with your massively private direct message! :(") 
+            return       
+
+    def send_tweet(self):
+        if self.chkMdm.get_active():
+            self.send_mdm()
+        else:
+            tb = gtk.TextBuffer()
+            textbuffer = self.tvTweet.get_buffer()
+            tweet = textbuffer.get_text(textbuffer.get_start_iter() , textbuffer.get_end_iter())
+            enc = { 'enc' : self.chkCipher.get_active(),
+                    'pin' : self.tbPinEncrypt.get_text(), }
+            pm = { 'pm' : self.rbPM.get_active(),
+                   'user' : self.tbPM.get_text(), }
+            gps = self.chkGps.get_active()
+            wave = self.cWave.get_active()
+            proxy = { 'proxy' : self.chkTor.get_active(),
+                      'ip_address' : self.tbIPAddress.get_text(),
+                      'port' : self.tbPort.get_text() }
+
+            if proxy['proxy'] is False:
+                proxy = None
+            self.lenght_tweet = len(tweet)
+            if self.lenght_tweet == 0:
+                self.num_tweets = 0
             else:
-                if pm["pm"] is not False:
-                    GuiUtils.Error("Error!", "Something went wrong with your private! :(") 
+                if enc["enc"] is True:
+                    if enc["pin"] is "":
+                        GuiUtils.Info("Encrypting message!", "You must enter a key for your encrypted message before to calculate how much long is it.")
+                        return
+                    else:
+                        try:
+                            self.log.debug("[Encrypting message!]: Starting to cipher...")    
+                            if tweet is not None:
+                                if int(self.lenght_tweet) > 69:
+                                    self.num_tweets_enc = ">140" #count cipher characters
+                                    self.lNumChars.set_text(str(self.num_tweets_enc))
+                                    self.lNumWaves.set_text(">1")
+                                    GuiUtils.Error("Warning on ciphered messages", "Remember that encrypted data has more lenght that your original message.\n\n Characters: 140 plain text = 69 chipered.\n\nThis is for keep strong the encryption algorithm.\n\nTry to remove some characters of your message and re-count again.")
+                                    return
+                                else:
+                                    self.num_tweets_enc = "<140" #count cipher characters
+                                    self.lNumChars.set_text(str(self.num_tweets_enc))
+                                    self.lNumWaves.set_text("1") #btm, only 1 ciphered message by 140 characters
+                        except:
+                            GuiUtils.Error("Error!", " PIN key is incorrect. Use 'Random Secret!' button to generate a valid one.")
+                            return
                 else:
-                    GuiUtils.Error("Error!", "Something went wrong with your message! :(")
-                return       
+                    self.num_tweets = int(self.lenght_tweet/141) +1 #140 characters/tweet
+                    self.lNumChars.set_text(str(self.lenght_tweet))
+                    self.lNumWaves.set_text(str(self.num_tweets))
+            try:
+                # check lenght of message and if waves are required.
+                if self.cWaveOn == False and self.lenght_tweet > 140:
+                    GuiUtils.Error("Error: Wave required", "Your message has more than 140 characters. You must activate waves mode to send it splitted by blocks.")
+                    return
+                else:
+                    msg = self.wrapper.send_tweet(tweet, pm, gps, wave, enc, proxy)
+                    if proxy is not None:
+                        self.log.debug('Tweet sent with proxy: ' + proxy['ip_address'] + ':' + proxy['port'])
+                    if self.cWaveOn == True:
+                        GuiUtils.Info("Wave sent!", "Wave sent correctly!")
+                    else:
+                        if pm['pm'] is not False:
+                            GuiUtils.Info("Private sent!", "Private sent correctly!")
+                        else:
+                            GuiUtils.Info("Message sent!", "Message sent correctly!")
+                    # removing message and restarting counters
+                    textbuffer = self.tvTweet.get_buffer().set_property("text", "")
+                    self.lenght_tweet = 0
+                    self.num_tweets = 0
+                    self.lNumChars.set_text(str(self.lenght_tweet))
+                    self.lNumWaves.set_text(str(self.num_tweets))
+                    if pm['pm'] is not False: #refresh privates timeline
+                        self.privates()
+                    else: # refresh the other options
+                        self.home_timelines()
+                        self.public_timelines()
+            except:
+                if self.cWaveOn == True:
+                    GuiUtils.Error("Error!", "Something went wrong with your wave! :(")
+                    return
+                else:
+                    if pm["pm"] is not False:
+                        GuiUtils.Error("Error!", "Something went wrong with your private! :(") 
+                    else:
+                        GuiUtils.Error("Error!", "Something went wrong with your message! :(")
+                    return       
     
     def decrypt(self):
         tb = gtk.TextBuffer()
@@ -679,6 +758,16 @@ class GuiMain(object):
         m = h.unescape(msg)
         self.tvDecrypted.get_buffer().set_text(m)
         self.vbDecryptedMsg.set_visible(True)
+
+    def on_chkMdm_toggled(self):
+        self.hbPM.set_visible(not self.hbPM.get_visible())
+        self.hbLDM.set_visible(not self.hbLDM.get_visible())
+
+    def tweet_mdm(self):
+        self.hbPM.set_visible(not self.hbPM.get_visible())
+        self.hbMDM.set_visible(not self.hbMDM.get_visible())
+        self.hbLDM.set_visible(False)
+        self.chkMdm.set_active(False)
 
     def on_bReplySearch_pressed(self):
         self.ID = self.eIdSearch.get_text()
@@ -1103,17 +1192,17 @@ class GuiMain(object):
         iter = buffer.get_end_iter()
         buffer.insert(iter, "\nSearch Results:" + "\n" + "===========\n")
         for s in searches:
-            u = h.unescape(s.user.screen_name)
-            buffer.insert(iter, "Nick: " + u + "\n")
+            #u = h.unescape(s.user.screen_name)
+            #buffer.insert(iter, "Nick: " + u + "\n")
             buffer.insert(iter, "ID: " + str(s.id) + "\n") 
             buffer.insert(iter, s.created_at + "\n") 
             t = h.unescape(s.text)
             buffer.insert(iter, t + "\n")
-            if s.place:
-                buffer.insert(iter, "Location: " + s.place + "\n")
+            if s.place is not None:
+                buffer.insert(iter, "Location: " + s.place["full_name"] + "\n")
             else:
                 pass
-            buffer.insert(iter, "------" + "\n")
+            buffer.insert(iter, "------" + "\n") 
 
     def save_messages(self):
         tb = gtk.TextBuffer()
@@ -1269,8 +1358,8 @@ class GuiMain(object):
             buffer.insert(iter, mentions[i].created_at + "\n")
             s = h.unescape(mentions[i].text)
             buffer.insert(iter, s + "\n")
-            if mentions[i].place:
-                buffer.insert(iter, "Location: " + mentions[i].place + "\n")
+            if mentions[i].place is not None:
+                buffer.insert(iter, "Location: " + mentions[i].place["name"] + "\n")
             else:
                 pass
             buffer.insert(iter, "------" + "\n")
@@ -1424,7 +1513,8 @@ class GuiMain(object):
                 topics = self.wrapper.search_topics(proxy)
                 if proxy is not None:
                     self.log.debug('Public timeline with proxy: ' + proxy['ip_address'] + ':' + proxy['port'])
-                self.lTrendingTopics.set_text(topics)
+                #self.lTrendingTopics.set_text(str(topics))
+                self.lTrendingTopics.set_text('\n '.join(topics))
         except:
             GuiUtils.Error("Error!", "Searching Trending Topics.")	
 

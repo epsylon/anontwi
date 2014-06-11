@@ -1,10 +1,12 @@
 #!/usr/bin/env python 
+# -*- coding: utf-8 -*-"
+# vim: set expandtab tabstop=4 shiftwidth=4:
 """
 $Id$
 
 This file is part of the anontwi project, http://anontwi.sourceforge.net.
 
-Copyright (c) 2012/2015 psy <root@lordepsylon.net> - <epsylon@riseup.net>
+Copyright (c) 2011/2012/2013/2014 - <epsylon@riseup.net>
 
 anontwi is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free
@@ -37,6 +39,7 @@ Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #   - Run ./anontwi or python anontwi (interfaces: --gtk / --web)
 
 from core.gtk.config_gtk import *
+import traceback
 
 #"""GTK Environment"""
 try:
@@ -49,6 +52,8 @@ try:
     APIsources = [{'source_api' : api[0].strip()}]
 
 except:
+    #traceback.print_bt()
+    #exit
     """Non GTK"""
     APItokens = [
 		{

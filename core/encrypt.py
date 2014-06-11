@@ -5,7 +5,7 @@ $Id$
 
 This file is part of the anontwi project, http://anontwi.sourceforge.net.
 
-Copyright (c) 2012/2015 psy <root@lordepsylon.net> - <epsylon@riseup.net>
+Copyright (c) 2012/2013 psy <root@lordepsylon.net> - <epsylon@riseup.net>
 
 anontwi is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free

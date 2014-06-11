@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- glade-interface-requires gtk+ 3.0 -->
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkTextBuffer" id="textbuffer1"/>
   <object class="GtkWindow" id="wMain">
     <property name="can_focus">False</property>
@@ -161,7 +161,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="tooltip_text" translatable="yes">Enter de server address of the proxy.</property>
-                                        <property name="invisible_char">&#x2022;</property>
+                                        <property name="invisible_char">•</property>
                                         <property name="text" translatable="yes">http://127.0.0.1</property>
                                         <property name="invisible_char_set">True</property>
                                       </object>
@@ -194,7 +194,7 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="tooltip_text" translatable="yes">Enter de server port of the proxy.</property>
-                                            <property name="invisible_char">&#x2022;</property>
+                                            <property name="invisible_char">•</property>
                                             <property name="text" translatable="yes">8118</property>
                                             <property name="invisible_char_set">True</property>
                                           </object>
@@ -442,7 +442,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Enter a message ID to interact with it.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -476,7 +476,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will repeat your message on your timeline.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bRetweetHome_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bRetweetHome_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -493,7 +493,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will save this message as your favorite.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bFavoriteHome_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bFavoriteHome_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -510,7 +510,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will remove this message of your favorites.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bUnFavoriteHome_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bUnFavoriteHome_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -527,7 +527,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will delete this message from your timeline.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bDeleteHome_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bDeleteHome_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -547,7 +547,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Number of messages to show on screen. By default is 5.</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -648,7 +648,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Enter a message ID to interact with it.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -682,7 +682,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will repeat your message on your timeline.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bRetweetPublic_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bRetweetPublic_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -699,7 +699,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will save this message as your favorite.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bFavoritePublic_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bFavoritePublic_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -716,7 +716,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will remove this message of your favorites.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bUnFavoritePublic_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bUnFavoritePublic_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -733,7 +733,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will delete this message from your timeline.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bDeletePublic_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bDeletePublic_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -771,7 +771,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="tooltip_text" translatable="yes">Enter the user that you want to visit.</property>
-                                        <property name="invisible_char">&#x2022;</property>
+                                        <property name="invisible_char">•</property>
                                         <property name="text" translatable="yes">@</property>
                                         <property name="caps_lock_warning">False</property>
                                       </object>
@@ -793,7 +793,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Number of messages to show on screen. By default is 5.</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -851,7 +851,7 @@
                                     <property name="receives_default">True</property>
                                     <property name="tooltip_text" translatable="yes">Follow the user that you are visiting.</property>
                                     <property name="use_action_appearance">False</property>
-                                    <signal handler="on_bFollowPublic_pressed" name="pressed" swapped="no"/>
+                                    <signal name="pressed" handler="on_bFollowPublic_pressed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -868,7 +868,7 @@
                                     <property name="receives_default">True</property>
                                     <property name="tooltip_text" translatable="yes">Unfollow the user that you are visiting.</property>
                                     <property name="use_action_appearance">False</property>
-                                    <signal handler="on_bUnfollowPublic_pressed" name="pressed" swapped="no"/>
+                                    <signal name="pressed" handler="on_bUnfollowPublic_pressed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -885,7 +885,7 @@
                                     <property name="receives_default">True</property>
                                     <property name="tooltip_text" translatable="yes">Block the user that you are visiting.</property>
                                     <property name="use_action_appearance">False</property>
-                                    <signal handler="on_bBlockPublic_pressed" name="pressed" swapped="no"/>
+                                    <signal name="pressed" handler="on_bBlockPublic_pressed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -902,7 +902,7 @@
                                     <property name="receives_default">True</property>
                                     <property name="tooltip_text" translatable="yes">Unblock the user that you are visiting.</property>
                                     <property name="use_action_appearance">False</property>
-                                    <signal handler="on_bUnblockPublic_pressed" name="pressed" swapped="no"/>
+                                    <signal name="pressed" handler="on_bUnblockPublic_pressed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -990,7 +990,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Enter a message ID to interact with it.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1025,7 +1025,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will delete this message from your private mailbox.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bDeletePrivate_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bDeletePrivate_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1039,7 +1039,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Number of messages to show on screen. By default is 5.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1137,7 +1137,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Enter a message ID to interact with it.</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -1190,7 +1190,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will repeat your message on your timeline.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bRetweetMentions_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bRetweetMentions_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1207,7 +1207,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will save this message as your favorite.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bFavoriteMentions_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bFavoriteMentions_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1224,7 +1224,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will remove this message of your favorites.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bUnFavoriteMentions_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bUnFavoriteMentions_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1240,7 +1240,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Number of messages to show on screen. By default is 5.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1334,7 +1334,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Enter the user that you want to visit.</property>
-                                <property name="invisible_char">&#x2022;</property>
+                                <property name="invisible_char">•</property>
                                 <property name="text" translatable="yes">@</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
@@ -1363,7 +1363,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Enter a message ID to interact with it.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1397,7 +1397,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will repeat your message on your timeline.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bRetweetFavorites_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bRetweetFavorites_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1414,7 +1414,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will save this message as your favorite.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bFavoriteFavorites_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bFavoriteFavorites_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1431,7 +1431,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will remove this message of your favorites.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bUnFavoriteFavorites_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bUnFavoriteFavorites_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1447,7 +1447,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Number of messages to show on screen. By default is 5.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1603,7 +1603,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Enter a message ID to interact with it.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1637,7 +1637,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will repeat your message on your timeline.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bRetweetSearch_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bRetweetSearch_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1654,7 +1654,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will save this message as your favorite.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bFavoriteSearch_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bFavoriteSearch_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1671,7 +1671,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">This will remove this message of your favorites.</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal handler="on_bUnFavoriteSearch_pressed" name="pressed" swapped="no"/>
+                                <signal name="pressed" handler="on_bUnFavoriteSearch_pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1719,7 +1719,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Enter a term, user, tag or whatever you want to search.</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1732,7 +1732,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Number of messages to show on screen. By default is 5.</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1996,7 +1996,7 @@ Interact with the tool to choose your options, and report any problem to:
                             <property name="use_action_appearance">False</property>
                             <property name="xalign">0.5</property>
                             <property name="draw_indicator">True</property>
-                            <signal handler="on_cWave_toggled" name="toggled" swapped="no"/>
+                            <signal name="toggled" handler="on_cWave_toggled" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -2138,7 +2138,7 @@ Using AnonTwi on shell mode, you can controle this coordenates.</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="xalign">0.5</property>
                                         <property name="draw_indicator">True</property>
-                                        <signal handler="on_chkGps_toggled" name="toggled" swapped="no"/>
+                                        <signal name="toggled" handler="on_chkGps_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2174,7 +2174,7 @@ Using AnonTwi on shell mode, you can controle this coordenates.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="tooltip_text" translatable="yes">Enter the user that you want to send a private message.</property>
-                                                <property name="invisible_char">&#x2022;</property>
+                                                <property name="invisible_char">•</property>
                                                 <property name="text" translatable="yes">@</property>
                                                 <property name="invisible_char_set">True</property>
                                               </object>
@@ -2207,7 +2207,7 @@ Using AnonTwi on shell mode, you can controle this coordenates.</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <property name="xalign">0.5</property>
                                                 <property name="draw_indicator">True</property>
-                                                <signal handler="on_chkMdm_toggled" name="toggled" swapped="no"/>
+                                                <signal name="toggled" handler="on_chkMdm_toggled" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -2371,7 +2371,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                                             <property name="width_request">400</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
-                                                            <property name="invisible_char">&#x2022;</property>
+                                                            <property name="invisible_char">•</property>
                                                             <property name="invisible_char_set">True</property>
                                                           </object>
                                                           <packing>
@@ -2535,7 +2535,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Secret PIN that you friend gives to you.</property>
                                     <property name="max_length">32</property>
-                                    <property name="invisible_char">&#x2022;</property>
+                                    <property name="invisible_char">•</property>
                                     <property name="invisible_char_set">True</property>
                                   </object>
                                   <packing>
@@ -2676,7 +2676,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_markup">Enter user that you want to save messages.</property>
-                                <property name="invisible_char">&#x2022;</property>
+                                <property name="invisible_char">•</property>
                                 <property name="text" translatable="yes">@</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
@@ -2705,7 +2705,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_markup">Enter a number of messages to be saved.</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -2805,7 +2805,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Enter an url to short.</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -3098,7 +3098,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_markup">Enter your IRC nick. If is blank, AnonTwi will generate randomly one for you ;-)</property>
-                                <property name="invisible_char">&#x2022;</property>
+                                <property name="invisible_char">•</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
                               <packing>
@@ -3127,7 +3127,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_markup">Enter your IRC server.</property>
-                                <property name="invisible_char">&#x2022;</property>
+                                <property name="invisible_char">•</property>
                                 <property name="text" translatable="yes">irc.freenode.net</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
@@ -3157,7 +3157,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_markup">Enter your IRC port.</property>
-                                <property name="invisible_char">&#x2022;</property>
+                                <property name="invisible_char">•</property>
                                 <property name="text" translatable="yes">6667</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
@@ -3187,7 +3187,7 @@ Whatever... try to keep your secret. It will protect your information.</property
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_markup">Enter your IRC Channel. If is blank, AnonTwi will generate randomly one for you ;-)</property>
-                                <property name="invisible_char">&#x2022;</property>
+                                <property name="invisible_char">•</property>
                                 <property name="text" translatable="yes">#</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
@@ -3276,7 +3276,7 @@ Whatever... try to keep your secret. It will protect your information.</property
 
 Attention: this process can take long time, so, be patient!!</property>
                     <property name="use_action_appearance">False</property>
-                    <signal handler="on_bSuicide_pressed" name="pressed" swapped="no"/>
+                    <signal name="pressed" handler="on_bSuicide_pressed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
