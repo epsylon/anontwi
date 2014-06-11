@@ -63,12 +63,14 @@ Code runs on many platforms. It requires Python and the following libraries:
       - python-httplib2 - comprehensive HTTP client library written for Python
 
       - python-pycurl   - python bindings to libcurl
+      
+      - python-glade2   - GTK+ bindings: Glade support
 
 On Debian-based systems (ex: Ubuntu), run:
 
       - directly:
 
-              sudo apt-get install python-crypto python-httplib2 python-pycurl
+              sudo apt-get install python-crypto python-httplib2 python-pycurl python-glade2
 
       - using setup-tools (http://pypi.python.org/pypi/setuptools):
 
