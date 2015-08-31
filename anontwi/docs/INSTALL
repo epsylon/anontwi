@@ -1,0 +1,54 @@
+============================================
+AnonTwi - [anontwi.03c8.net] - 2015
+============================================
+
+FIGHT CENSORSHIP!! being more safe on social networking sites...
+
+===================
+How-to INSTALL:
+===================
+
+Code runs on many platforms. It requires Python and the following libraries:
+
+      - python-crypto   - cryptographic algorithms and protocols for Python
+
+      - python-httplib2 - comprehensive HTTP client library written for Python
+
+      - python-pycurl   - python bindings to libcurl
+
+On Debian-based systems (ex: Ubuntu), run:
+
+      - directly:
+
+              sudo apt-get install python-crypto python-httplib2 python-pycurl
+
+      - using setup-tools (http://pypi.python.org/pypi/setuptools):
+
+              easy_install 'packages'
+
+-----
+python-crypto: http://packages.debian.org/search?keywords=python-crypto
+
+python-httplib2: http://packages.debian.org/search?keywords=python-httplib2
+
+python-pycurl: http://packages.debian.org/search?keywords=python-pycurl
+-----
+
+On Windows systems, is working (tested!) with:
+
+      - python 2.7      - http://www.python.org/getit/
+      - httplib2 0.7.4  - http://httplib2.googlecode.com/files/httplib2-0.7.4.zip
+      - pycrypto 2.3    - http://www.voidspace.org.uk/downloads/pycrypto-2.3.win32-py2.7.zip
+
+      - using setup-tools (http://pypi.python.org/pypi/setuptools):
+
+              easy_install.exe 'packages'
+
+=========
+More info: 
+=========
+
+    - http://anontwi.03c8.net/
+
+    - irc.feenode.net / channel #anontwi
+

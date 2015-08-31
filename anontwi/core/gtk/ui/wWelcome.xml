@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<interface>
+  <!-- glade-interface-naming-policy project-wide -->
+  <object class="GtkAction" id="action1"/>
+  <object class="GtkWindow" id="wWelcome">
+    <property name="window_position">center</property>
+    <property name="default_width">1024</property>
+    <property name="default_height">768</property>
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkImage" id="iAnontwi">
+            <property name="visible">True</property>
+            <property name="pixbuf">images/anontwi_small.png</property>
+          </object>
+          <packing>
+            <property name="padding">10</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Welcome to AnonTwi GTK+ Interface!
+
+Is time to configure it...</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLinkButton" id="linkbutton1">
+            <property name="label" translatable="yes">http://anontwi.03c8.net</property>
+            <property name="width_request">100</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="has_tooltip">True</property>
+            <property name="relief">half</property>
+            <property name="uri">http://anontwi.03c8.net</property>
+          </object>
+          <packing>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Features working:
+                                                                                 
+      + AES + HMAC-SHA1 encryption on Public/Private Messages
+      + Secure Sockets Layer (SSL) to interact with API
+      + Proxy Socks (for example, to connect to the TOR network)
+      + Random HTTP header values
+      + Send long messages splitted automatically
+      + Automatic decryption of tweet's urls or raw inputs
+      + Backup messages to your disk
+      + Send fake geolocation places
+      + Remove data and close account (suicide)
+      + View global Trending Topics
+      + UTF-8 + Unicode support (chinese, arabic, symbols, etc)
+      + Multiplatform: GNU/Linux, MacOS, Win32
+      + [....]
+
+Enjoy your new private network! :D</property>
+          </object>
+          <packing>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="bNext">
+            <property name="label" translatable="yes">Next</property>
+            <property name="height_request">100</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
