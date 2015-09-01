@@ -64,11 +64,13 @@ Code runs on many platforms. It requires Python and the following libraries:
 
       - python-pycurl   - python bindings to libcurl
 
+      - python-glade2   - GTK+ bindings: Glade support 
+
 On Debian-based systems (ex: Ubuntu), run:
 
       - directly:
 
-              sudo apt-get install python-crypto python-httplib2 python-pycurl
+              sudo apt-get install python-crypto python-httplib2 python-pycurl python-glade2
 
       - using setup-tools (http://pypi.python.org/pypi/setuptools):
 
@@ -77,8 +79,10 @@ On Debian-based systems (ex: Ubuntu), run:
 On Windows systems, is working (tested!) with:
 
       - python 2.7      - http://www.python.org/getit/
-      - httplib2 0.7.4  - http://httplib2.googlecode.com/files/httplib2-0.7.4.zip
       - pycrypto 2.3    - http://www.voidspace.org.uk/downloads/pycrypto-2.3.win32-py2.7.zip
+      - httplib2 0.7.4  - http://httplib2.googlecode.com/files/httplib2-0.7.4.zip
+      - pycurl 7.19.5.1 - http://pycurl.sourceforge.net/download/
+      - pygtk 2.24      - http://www.pygtk.org/downloads.html
 
       - using setup-tools (http://pypi.python.org/pypi/setuptools):
 
